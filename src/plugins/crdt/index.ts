@@ -517,9 +517,12 @@ export const RxDBcrdtPlugin: RxPlugin = {
                     const storageToken = await collection.database.storageToken;
                     const useDocsData = await Promise.all(
                         docsData.map(async (docData) => {
-                            if (isRxDocument(docData)) {
-                                docData = docData.toMutableJSON();
-                            }
+                            /**
+                             * Work on a copy so that the object of the caller
+                             * stays untouched and frozen objects can be inserted.
+                             */
+                            docData = isRxDocument(docData) ? docData.toMutableJSON() : clone(docData);
+
                             /**
                              * Fill schema default values before creating CRDT operations,
                              * so that default values are captured in the operations and
